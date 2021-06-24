@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
+const multer = require('multer')
 // const upload = multer({dest:'uploads/'});
 //ENCURTANDO AS ROTAS COM O CONTROLLER
 const mysql = require('../mysql').pool;
@@ -10,7 +10,7 @@ const mysql = require('../mysql').pool;
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/IMG/');// DEFINE O LOCAL ONDE OS UPLOADS 
+        cb(null, 'public/IMG');// DEFINE O LOCAL ONDE OS UPLOADS 
     },
     filename: function (req, file, cb) {
         let data = new Date().toISOString().replace(/:/g, '-') + '-';
@@ -51,7 +51,7 @@ router.get('/', (req, res, next) => {
                     quantidade: result.length,
                     produtos: result.map(prod => {
                         return {
-                            id_produto: prod.id_produtos,
+                            id_produto: prod.id,
                             nome: prod.nome,
                             preco: prod.preco,
                             imagem_produto: prod.imagem_produto,
@@ -71,7 +71,7 @@ router.get('/', (req, res, next) => {
 
    
 });
-router.post('/',upload.single('produto_imagem'),/*PROPIEDADE DO MULTER PARA ENVIAR IMAGENS NO FORM-DATA */(req, res, next) => {
+router.post('/',upload.single('img'),/*PROPIEDADE DO MULTER PARA ENVIAR IMAGENS NO FORM-DATA */(req, res, next) => {
 
     mysql.getConnection((error, conn) => {//CRIA A CONEXAO SQL
         if (error) { return res.status(500).send({ error: error }) }//PEGA ERRO
@@ -80,18 +80,20 @@ router.post('/',upload.single('produto_imagem'),/*PROPIEDADE DO MULTER PARA ENVI
             [
             req.body.nome, 
             req.body.preco,
-            req.body.img
+            req.file.path
         ],
             (error, resultado, field) => {
                 conn.release();
                 if (error) { return res.status(500).send({ error: error }) }
+                console.log(resultado)
                 const response = {
+                    
                     mensagem: 'PRODUTO CRIADO COM SUCESSO',
                     produtoCriado: {//CONST PARA RECEBER OS VALORES DO PRODUTO INSERIDO
-                        id_produto: resultado.id_produto,
+                        id_produto: resultado.insertId,
                         nome: req.body.nome,
                         preco: req.body.preco,
-                        imagem_produto: req.body.img,
+                        imagem_produto: req.file.path,
                         request: {
                             tipo: 'GET',
                             descriçao: 'RETORNA TODOS OS PRODUTOS',
