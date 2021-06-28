@@ -182,13 +182,13 @@ router.patch('/',(req, res, next) => {// EXPORTA A CONEXAO PARA A ROTA
     })
 
 });
-router.delete('/' ,(req, res, next) => {// EXPORTA A CONEXAO PARA A ROTA 
+router.delete('/:id_produto' ,(req, res, next) => {// EXPORTA A CONEXAO PARA A ROTA 
     mysql.getConnection((error, conn) => {//CRIA A CONEXAO SQL
         if (error) { return res.status(500).send({ error: error }) }
         conn.query(
             `DELETE FROM produtos WHERE id = ?`,
-            [req.body.id_produto],
-            (error, resultado, field) => {
+            [req.params.id_produto],
+            (error, result, field) => {
                 conn.release();
                 if (error) { return res.status(500).send({ error: error }) }
                 const response = { //CONST PARA RECEBER OS VALORES DO PRODUTO DELETADO

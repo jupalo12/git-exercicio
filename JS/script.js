@@ -29,18 +29,6 @@ class Produto {
                 data.produtos.forEach(prd => {
                     this.arrayProdutos.push(prd);
                 });
-                // for (let i = 0; i < data.produtos.length; i++) {
-                //     console.log(data.produtos[i].id_produto)
-                //     for (let j = 0; j < this.arrayProdutos.length; j++) {
-                //         console.log(j)
-                //         if (i != j) {
-                //             // this.arrayProdutos.push(data.produtos[i])
-
-                //         }
-
-                //     }
-                //     console.log(this.arrayProdutos)
-                // }
 
                 for (let i = 0; i < this.arrayProdutos.length; i++) {
                     let tr = tbody.insertRow();
@@ -50,7 +38,7 @@ class Produto {
                     let td_preco = tr.insertCell();
                     let td_acoes = tr.insertCell();
 
-                    td_id.innerText = this.arrayProdutos[i].id; 
+                    td_id.innerText = this.arrayProdutos[i].id_produto; 
                     td_produto.innerText = this.arrayProdutos[i].nome;
                     td_preco.innerText = this.arrayProdutos[i].preco;
 
@@ -64,8 +52,13 @@ class Produto {
                     imgDelete.src = './IMG/eletar-conta.svg';
                     imgDelete.setAttribute("onclick", "produto.deletar(" + this.arrayProdutos[i].id_produto + ")");
 
+                    let imgVisu = document.createElement('img');
+                    imgVisu.src = '../IMG/edit_img.png';
+                    // imgVisu.setAttribute("onclick", "produto.deletar(" + this.arrayProdutos[i].id_produto + ")");
+
                     td_acoes.appendChild(imgEdit);
                     td_acoes.appendChild(imgDelete);
+                    td_acoes.appendChild(imgVisu);
 
                 }
             })
@@ -165,20 +158,41 @@ class Produto {
         document.getElementById('preco').value = ' ';
     }
 
-    deletar(id) {
-
-        if (confirm('Deseja Relmente Delete Este Produto?' + id)) {
+     remove(id){
+        fetch("http://localhost:3000/produtos/" + id, {
+          method: 'DELETE'
+        }).then(() => {
+           console.log('removed');
+        }).catch(err => {
+          console.error(err)
+        });
+    }
+    deletar(id_produto) {
+        if (confirm('Deseja Relmente Delete Este Produto?' + id_produto)) {
+        fetch('http://localhost:3000/produtos/' + id_produto, {
+            method: 'DELETE'
+          })
+          .then(res => {
+            return res.json()
+          }) 
+          .then(data =>{
+              
             let tbody = document.getElementById('tbody');
 
             for (let i = 0; i < this.arrayProdutos.length; i++) {
-                if (this.arrayProdutos[i].id == id) {
+                if (this.arrayProdutos[i].id_produto == id_produto) {
                     this.arrayProdutos.splice(i, 1)
                     tbody.deleteRow(i);
                 }
             }
 
             console.log(this.arrayProdutos)
+          })
+
+       
+           
         }
+    
     }
 
 
