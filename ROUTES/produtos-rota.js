@@ -10,11 +10,10 @@ const mysql = require('../mysql').pool;
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/IMG');// DEFINE O LOCAL ONDE OS UPLOADS 
+        cb(null, './public/IMG/');// DEFINE O LOCAL ONDE OS UPLOADS 
     },
     filename: function (req, file, cb) {
-        let data = new Date().toISOString().replace(/:/g, '-') + '-';
-        cb(null, data + file.originalname);// INSERE A DATA QUE FOI POSTADA E NOME DO UPLOAD
+        cb(null,file.originalname)
     }
 });
 
@@ -144,7 +143,8 @@ router.get('/:id_produto',(req, res, next) => {// EXPORTA A CONEXAO PARA A ROTA
     });
 
 });
-router.patch('/',(req, res, next) => {// EXPORTA A CONEXAO PARA A ROTA 
+router.patch('/:id',(req, res, next) => {// EXPORTA A CONEXAO PARA A ROTA 
+    let id = req.params.id;
     mysql.getConnection((error, conn) => {//CRIA A CONEXAO SQL
         if (error) { return res.status(500).send({ error: error }) }
         conn.query(
@@ -156,6 +156,7 @@ router.patch('/',(req, res, next) => {// EXPORTA A CONEXAO PARA A ROTA
 
             [req.body.nome,
             req.body.preco,
+            req.body.imagem_produto,
             req.body.id_produto],
             (error, result, field) => {
 
@@ -205,7 +206,7 @@ router.delete('/:id_produto' ,(req, res, next) => {// EXPORTA A CONEXAO PARA A R
                 }
                 return res.status(202).send(response)
             }
-        )
+        )                                        
 
     })
 });

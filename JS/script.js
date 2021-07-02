@@ -38,7 +38,7 @@ class Produto {
                     let td_preco = tr.insertCell();
                     let td_acoes = tr.insertCell();
 
-                    td_id.innerText = this.arrayProdutos[i].id_produto; 
+                    td_id.innerText = this.arrayProdutos[i].id_produto;
                     td_produto.innerText = this.arrayProdutos[i].nome;
                     td_preco.innerText = this.arrayProdutos[i].preco;
 
@@ -54,7 +54,7 @@ class Produto {
 
                     let imgVisu = document.createElement('img');
                     imgVisu.src = '../IMG/edit_img.png';
-                    // imgVisu.setAttribute("onclick", "produto.deletar(" + this.arrayProdutos[i].id_produto + ")");
+                    imgVisu.setAttribute("onclick", "produto.Modal(" + this.arrayProdutos[i].id_produto + ")");
 
                     td_acoes.appendChild(imgEdit);
                     td_acoes.appendChild(imgDelete);
@@ -63,7 +63,7 @@ class Produto {
                 }
             })
     }
-    
+
 
     async adicionar(produto) {
         const formData = new FormData();
@@ -95,30 +95,70 @@ class Produto {
             //  console.log("data imagem "+ data.imagem_produto)
 
             this.arrayProdutos.push(produto);
+            this.cancelar();
+            document.location.reload(true);
 
         });
 
 
     }
+    //  atualizarValor(id, albumId) {
+    //     fetch(`http://localhost:3000/produtos`, {
+    //     method: "PATCH",
+    //     headers: {
+    //     "Content-type": "application/json",
+    //     "accept": "application/json"
+    //     },
+    //     body: JSON.stringify({
+    //     song: songInfo.song.value
+    //     })
+    //     })
+    //     .then(res => res.json())
+    //     .then(album => {
+    //     fetchAlbums()
+    //     songInfo.reset()
+    //     })
+    //     }
 
-    atualizar(id, produto) {
+    atualizar(produto) {
+        console.log("id produto atualizar "+produto.id_produto)
+        this.lerDados(produto)
+        const formData = new FormData();
+        const fileField = document.querySelector('input[type="file"]');
 
-        for (let i = 0; i < this.arrayProdutos.length; i++) {
-            if (this.arrayProdutos[i].id == id) {
-                this.arrayProdutos[i].nome = produto.nome
-                this.arrayProdutos[i].preco = produto.preco
+        formData.append('id', produto.id_produto);
+        formData.append('nome', produto.nome);
+        formData.append('preco', produto.preco);
+        formData.append('img', fileField.files[0]);
+
+        fetch('http://localhost:3000/produtos', {
+            method: 'PATCH',
+            body: formData,
+
+        }).then(result => {
+            return result.json();
+        }).then(data => {
+            for (let i = 0; i < this.arrayProdutos.length; i++) {
+                if (this.arrayProdutos[i].id == id) {
+                    this.arrayProdutos[i].nome = produto.nome
+                    this.arrayProdutos[i].preco = produto.preco
+                }
             }
-        }
+        })
+
+
+
     }
 
     editar(dados) {
-        this.editId = dados.id;
+        this.editId = dados.id_produto;
+        // let btn1 = document.getElementById('btn1')
 
-
-        document.getElementById('produto').value = dados.nome;
-        document.getElementById('preço').value = dados.preco;
-
+        document.getElementById('nome').value = dados.nome;
+        document.getElementById('preco').value = dados.preco;
         document.getElementById('btn1').innerText = 'Atualizar'
+        // btn1.setAttribute("onclick", "produto.atualizar("+ editId + ")");
+
     }
 
     validaCampos(produto) {
@@ -129,6 +169,9 @@ class Produto {
         if (produto.preco == ``) {
             msg += `- Informe o preço do produto \n`
         }
+        // if (produto.imagem_produto == ``) {
+        //     msg += `- Adicione uma imagem \n`
+        // }
         if (msg != ``) {
             alert(msg);
             return false
@@ -138,19 +181,51 @@ class Produto {
 
     lerDados() {
         let produto = {}
-
-        produto.id = this.id;
+        console.log("lerdado editid " + this.editId)
+        produto.id_produto = this.editId;
         produto.nome = document.getElementById('nome').value;
         produto.preco = document.getElementById('preco').value;
 
 
 
 
-        console.log("Produto na Lerdados()" + produto)
         this.validaCampos(produto);
         this.adicionar(produto);
         return produto;
 
+    }
+
+
+
+    Modal(id_produto) {
+
+        fetch('http://localhost:3000/produtos/' + id_produto,)
+            .then(result => {
+                console.log(result)
+                return result.json()
+            }).then(data => {
+                console.log(data)
+                for (let i = 0; i < this.arrayProdutos.length; i++) {
+                    if (this.arrayProdutos[i].id_produto == id_produto) {
+                        console.log(data.produto.imagem_produto)
+                        document.getElementById("imgModal").src = data.produto.imagem_produto
+                    }
+                }
+            });
+
+
+        var modal = document.getElementById("myModal");
+        var span = document.getElementsByClassName("close")[0];
+        modal.style.display = "block";
+        span.onclick = function () {
+            modal.style.display = "none";
+
+        }
+        // window.onclick = function (event) {
+        //     if (event.target == modal) {
+        //         modal.style.display = "none";
+        //     }
+        // }
     }
 
     cancelar() {
@@ -158,41 +233,34 @@ class Produto {
         document.getElementById('preco').value = ' ';
     }
 
-     remove(id){
-        fetch("http://localhost:3000/produtos/" + id, {
-          method: 'DELETE'
-        }).then(() => {
-           console.log('removed');
-        }).catch(err => {
-          console.error(err)
-        });
-    }
+
     deletar(id_produto) {
+        console.log(id_produto)
         if (confirm('Deseja Relmente Delete Este Produto?' + id_produto)) {
-        fetch('http://localhost:3000/produtos/' + id_produto, {
-            method: 'DELETE'
-          })
-          .then(res => {
-            return res.json()
-          }) 
-          .then(data =>{
-              
-            let tbody = document.getElementById('tbody');
+            fetch('http://localhost:3000/produtos/' + id_produto, {
+                method: 'DELETE'
+            })
+                .then(res => {
+                    return res.json()
+                })
+                .then(data => {
 
-            for (let i = 0; i < this.arrayProdutos.length; i++) {
-                if (this.arrayProdutos[i].id_produto == id_produto) {
-                    this.arrayProdutos.splice(i, 1)
-                    tbody.deleteRow(i);
-                }
-            }
+                    let tbody = document.getElementById('tbody');
 
-            console.log(this.arrayProdutos)
-          })
+                    for (let i = 0; i < this.arrayProdutos.length; i++) {
+                        if (this.arrayProdutos[i].id_produto == id_produto) {
+                            this.arrayProdutos.splice(i, 1)
+                            tbody.deleteRow(i);
+                        }
+                    }
 
-       
-           
+                    console.log(this.arrayProdutos)
+                })
+
+
+
         }
-    
+
     }
 
 

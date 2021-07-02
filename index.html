@@ -7,9 +7,7 @@
     <title>Exercício</title>
     <script type="text/javascript" src="JS/script.js"></script>
     <link rel="stylesheet" type="text/css" href="CSS/styles.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@200;700&display=swap" rel="stylesheet">
+
 </head>
 
 <body onload="produto.listaTabela()">
@@ -38,6 +36,7 @@
             </div>
             <button type="submit" onclick="produto.lerDados()" id="btn1">Salvar</button>
             <button type="button" onclick="produto.cancelar()">Cancelar</button>
+            <button type="button" onclick="produto.atualizar(produto)">editar</button>
         </div>
 
     <div class="content">
@@ -49,7 +48,14 @@
                 <th>Ações</th>
             </thead>
             <tbody id="tbody">
-
+                <div>
+                    <div id="myModal" class="modal">
+                        <div class="modal-content">
+                            <span onclick="reset()" class="close">&times;</span>
+                            <img src="" id="imgModal">
+                        </div>
+                    </div>
+                </div>
             </tbody>
         </table>
     </div>
